@@ -166,7 +166,7 @@ class CartService
         return [
             'items' => $items,
             'subtotal' => $cart->subtotal(),
-            'subtotal_formatted' => Money::format($cart->subtotal()),
+            'subtotal_formatted' => $this->currency->format($cart->subtotal()),
             'count' => $cart->totalQuantity(),
         ];
     }
