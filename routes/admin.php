@@ -32,6 +32,8 @@ Route::middleware(['auth', 'staff'])
     ->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
+        Route::get('products/import/template', [ProductController::class, 'importTemplate'])->name('products.importTemplate');
+        Route::post('products/import', [ProductController::class, 'import'])->name('products.import');
         Route::resource('products', ProductController::class)->except('show');
         Route::resource('categories', CategoryController::class)->only(['index', 'store', 'update', 'destroy']);
         Route::resource('collections', CollectionController::class)->only(['index', 'store', 'update', 'destroy']);

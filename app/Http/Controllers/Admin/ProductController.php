@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Admin;
 use App\Enums\ProductStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ProductRequest;
+use App\Imports\ProductsImport;
 use App\Models\Category;
 use App\Models\Collection;
 use App\Models\Product;
@@ -15,6 +16,9 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use Throwable;
 
 class ProductController extends Controller
 {
@@ -103,6 +107,58 @@ class ProductController extends Controller
         $product->delete();
 
         return back()->with('success', 'Product deleted.');
+    }
+
+    /**
+     * Bulk-import products from an Excel or CSV spreadsheet.
+     */
+    public function import(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:xlsx,xls,csv,ods,txt', 'max:10240'],
+        ]);
+
+        $import = new ProductsImport;
+
+        try {
+            Excel::import($import, $request->file('file'));
+        } catch (Throwable $e) {
+            return back()->with('error', 'Import failed: '.$e->getMessage());
+        }
+
+        $summary = "Imported {$import->created} new and updated {$import->updated} products.";
+
+        if ($import->errors !== []) {
+            $preview = implode(' | ', array_slice($import->errors, 0, 3));
+
+            return back()->with('error', $summary.' '.count($import->errors)." row(s) skipped — {$preview}");
+        }
+
+        return back()->with('success', $summary);
+    }
+
+    /**
+     * Download a CSV template with the expected columns and an example row.
+     */
+    public function importTemplate(): StreamedResponse
+    {
+        $headers = [
+            'name', 'sku', 'category', 'brand', 'price', 'compare_at_price',
+            'stock_quantity', 'status', 'short_description', 'description', 'is_featured', 'image', 'collections',
+        ];
+
+        $example = [
+            'Rosewater Hydrating Toner', 'SOK-1001', 'Serums', 'Sokari', '19.99', '24.99',
+            '75', 'active', 'Gentle daily rosewater toner.', '<p>Full product description here.</p>', 'no',
+            '/images/product/product-3.jpg', 'New Arrivals, Skincare Essentials',
+        ];
+
+        return response()->streamDownload(function () use ($headers, $example) {
+            $out = fopen('php://output', 'w');
+            fputcsv($out, $headers);
+            fputcsv($out, $example);
+            fclose($out);
+        }, 'products-import-template.csv', ['Content-Type' => 'text/csv']);
     }
 
     /**

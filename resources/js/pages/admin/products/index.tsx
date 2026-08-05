@@ -1,8 +1,8 @@
 import AppLayout from '@/layouts/app-layout';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
-import { Head, Link, router } from '@inertiajs/react';
-import { Pencil, Plus, Trash2 } from 'lucide-react';
+import { Head, Link, router, useForm } from '@inertiajs/react';
+import { Download, Pencil, Plus, Trash2, Upload, X } from 'lucide-react';
 import { useState } from 'react';
 
 const breadcrumbs: BreadcrumbItem[] = [{ title: 'Products', href: '/admin/products' }];
@@ -31,6 +31,19 @@ interface Props {
 
 export default function ProductsIndex({ products, filters }: Props) {
     const [q, setQ] = useState(filters.q);
+    const [importOpen, setImportOpen] = useState(false);
+    const importForm = useForm<{ file: File | null }>({ file: null });
+
+    function submitImport(e: React.FormEvent) {
+        e.preventDefault();
+        importForm.post('/admin/products/import', {
+            forceFormData: true,
+            onSuccess: () => {
+                importForm.reset();
+                setImportOpen(false);
+            },
+        });
+    }
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -38,9 +51,14 @@ export default function ProductsIndex({ products, filters }: Props) {
             <div className="flex flex-col gap-4 p-4">
                 <div className="flex items-center justify-between">
                     <h1 className="text-2xl font-semibold tracking-tight">Products</h1>
-                    <Link href="/admin/products/create" className="bg-primary text-primary-foreground inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium">
-                        <Plus size={16} /> New product
-                    </Link>
+                    <div className="flex items-center gap-2">
+                        <button onClick={() => setImportOpen(true)} className="border-border inline-flex items-center gap-1.5 rounded-lg border px-4 py-2 text-sm font-medium">
+                            <Upload size={16} /> Import
+                        </button>
+                        <Link href="/admin/products/create" className="bg-primary text-primary-foreground inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-medium">
+                            <Plus size={16} /> New product
+                        </Link>
+                    </div>
                 </div>
 
                 <form
@@ -81,7 +99,7 @@ export default function ProductsIndex({ products, filters }: Props) {
                                     <td className="px-4 py-3">
                                         <div className="flex items-center gap-3">
                                             <div className="bg-muted h-10 w-10 overflow-hidden rounded-md">
-                                                {product.image && <img src={product.image} alt="" className="h-full w-full object-cover" />}
+                                                {product.image && <img src={product.image} alt="" className="h-full w-full object-contain" />}
                                             </div>
                                             <span className="font-medium">{product.name}</span>
                                         </div>
@@ -124,6 +142,40 @@ export default function ProductsIndex({ products, filters }: Props) {
                     )}
                 </div>
             </div>
+
+            {importOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setImportOpen(false)}>
+                    <div className="bg-background w-full max-w-md rounded-2xl p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-between">
+                            <h2 className="text-lg font-medium">Import products</h2>
+                            <button onClick={() => setImportOpen(false)} className="hover:bg-muted rounded-full p-1.5"><X size={16} /></button>
+                        </div>
+                        <p className="text-muted-foreground mt-2 text-sm">
+                            Upload an Excel or CSV file. Accepted formats: <span className="font-medium">.xlsx, .xls, .csv, .ods</span>.
+                            Existing products are matched by SKU (or name) and updated.
+                        </p>
+                        <a href="/admin/products/import/template" className="text-primary mt-3 inline-flex items-center gap-1.5 text-sm font-medium">
+                            <Download size={15} /> Download template
+                        </a>
+                        <form onSubmit={submitImport} className="mt-4 flex flex-col gap-3">
+                            <input
+                                type="file"
+                                accept=".xlsx,.xls,.csv,.ods"
+                                onChange={(e) => importForm.setData('file', e.target.files?.[0] ?? null)}
+                                className="text-sm"
+                            />
+                            {importForm.errors.file && <p className="text-destructive text-xs">{importForm.errors.file}</p>}
+                            <button
+                                type="submit"
+                                disabled={!importForm.data.file || importForm.processing}
+                                className="bg-primary text-primary-foreground rounded-lg py-2.5 text-sm font-medium disabled:opacity-50"
+                            >
+                                {importForm.processing ? 'Importing…' : 'Upload & import'}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
         </AppLayout>
     );
 }
