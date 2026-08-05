@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\CartService;
+use App\Services\CurrencyService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -38,13 +40,37 @@ class HandleInertiaRequests extends Middleware
     {
         [$message, $author] = str(Inspiring::quotes()->random())->explode('-');
 
-        return array_merge(parent::share($request), [
+        return [
             ...parent::share($request),
             'name' => config('app.name'),
             'quote' => ['message' => trim($message), 'author' => trim($author)],
             'auth' => [
                 'user' => $request->user(),
             ],
-        ]);
+            'flash' => [
+                'success' => fn () => $request->session()->get('success'),
+                'error' => fn () => $request->session()->get('error'),
+            ],
+            'cart' => fn () => app(CartService::class)->summary(),
+            'currency' => fn () => $this->currencyProps(),
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function currencyProps(): array
+    {
+        $service = app(CurrencyService::class);
+        $current = $service->current();
+
+        return [
+            'current' => ['code' => $current->code, 'symbol' => $current->symbol],
+            'available' => $service->active()->map(fn ($c) => [
+                'code' => $c->code,
+                'symbol' => $c->symbol,
+                'name' => $c->name,
+            ])->all(),
+        ];
     }
 }
