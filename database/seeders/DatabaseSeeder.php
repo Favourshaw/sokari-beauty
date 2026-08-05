@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Enums\Role;
 use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -13,11 +13,26 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        User::factory()->superAdmin()->create([
+            'name' => 'Sokari Admin',
+            'email' => 'admin@sokaribeauty.test',
+        ]);
+
+        User::factory()->employee()->create([
+            'name' => 'Store Employee',
+            'email' => 'employee@sokaribeauty.test',
+        ]);
 
         User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+            'name' => 'Jane Customer',
+            'email' => 'customer@sokaribeauty.test',
+            'role' => Role::Customer,
+        ]);
+
+        $this->call([
+            CommerceSeeder::class,
+            CatalogSeeder::class,
+            ContentSeeder::class,
         ]);
     }
 }
