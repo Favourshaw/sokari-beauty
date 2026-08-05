@@ -50,7 +50,7 @@ export default function Cart({ cart }: { cart: CartData }) {
                                 {cart.items.map((item) => (
                                     <div key={item.id} className="flex gap-4 py-5">
                                         <Link href={item.url} className="bg-muted h-24 w-24 shrink-0 overflow-hidden rounded-xl">
-                                            {item.image && <img src={item.image} alt={item.name} className="h-full w-full object-cover" />}
+                                            {item.image && <img src={item.image} alt={item.name} className="h-full w-full object-contain p-1" />}
                                         </Link>
                                         <div className="flex flex-1 flex-col">
                                             <div className="flex justify-between gap-4">

@@ -93,7 +93,7 @@ export default function Product({ product, related }: ProductProps) {
                     <div className="flex flex-col gap-4">
                         <div className="bg-muted aspect-square overflow-hidden rounded-3xl">
                             {product.images[activeImage] && (
-                                <img src={product.images[activeImage].path} alt={product.images[activeImage].alt ?? product.name} className="h-full w-full object-cover" />
+                                <img src={product.images[activeImage].path} alt={product.images[activeImage].alt ?? product.name} className="h-full w-full object-contain p-2" />
                             )}
                         </div>
                         {product.images.length > 1 && (
@@ -104,7 +104,7 @@ export default function Product({ product, related }: ProductProps) {
                                         onClick={() => setActiveImage(i)}
                                         className={cn('bg-muted aspect-square overflow-hidden rounded-xl border-2', i === activeImage ? 'border-primary' : 'border-transparent')}
                                     >
-                                        <img src={image.path} alt="" className="h-full w-full object-cover" />
+                                        <img src={image.path} alt="" className="h-full w-full object-contain p-2" />
                                     </button>
                                 ))}
                             </div>

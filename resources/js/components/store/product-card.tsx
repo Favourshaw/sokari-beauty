@@ -18,7 +18,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
                         alt={product.name}
                         loading="lazy"
                         className={cn(
-                            'h-full w-full object-cover transition-all duration-700 group-hover:scale-105',
+                            'h-full w-full object-contain p-2 transition-all duration-700 group-hover:scale-105',
                             product.hover_image && 'group-hover:opacity-0',
                         )}
                     />
@@ -29,7 +29,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
                         alt=""
                         aria-hidden
                         loading="lazy"
-                        className="absolute inset-0 h-full w-full scale-105 object-cover opacity-0 transition-opacity duration-700 group-hover:opacity-100"
+                        className="absolute inset-0 h-full w-full scale-105 object-contain p-2 opacity-0 transition-opacity duration-700 group-hover:opacity-100"
                     />
                 )}
 

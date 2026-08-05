@@ -42,6 +42,15 @@ const label = 'text-sm font-medium';
 export default function ProductForm({ product, categories, collections, statuses }: Props) {
     const isEdit = !!product;
     const [deleteImages, setDeleteImages] = useState<number[]>([]);
+    const [previews, setPreviews] = useState<string[]>([]);
+
+    function selectImages(files: FileList | null) {
+        const list = Array.from(files ?? []);
+        form.setData('images', list);
+        // Revoke old object URLs before creating new ones to avoid leaks.
+        previews.forEach((url) => URL.revokeObjectURL(url));
+        setPreviews(list.map((file) => URL.createObjectURL(file)));
+    }
 
     const form = useForm<{
         name: string; sku: string; category_id: number | ''; brand: string; short_description: string;
@@ -109,7 +118,7 @@ export default function ProductForm({ product, categories, collections, statuses
                             <div className="flex flex-wrap gap-3">
                                 {product.images.filter((img) => !deleteImages.includes(img.id)).map((img) => (
                                     <div key={img.id} className="relative h-20 w-20 overflow-hidden rounded-lg">
-                                        <img src={img.path} alt="" className="h-full w-full object-cover" />
+                                        <img src={img.path} alt="" className="h-full w-full object-contain" />
                                         <button type="button" onClick={() => setDeleteImages([...deleteImages, img.id])} className="absolute top-1 right-1 rounded-full bg-black/60 p-0.5 text-white">
                                             <X size={12} />
                                         </button>
@@ -117,7 +126,16 @@ export default function ProductForm({ product, categories, collections, statuses
                                 ))}
                             </div>
                         )}
-                        <input type="file" multiple accept="image/*" onChange={(e) => form.setData('images', Array.from(e.target.files ?? []))} className="text-sm" />
+                        <input type="file" multiple accept="image/*" onChange={(e) => selectImages(e.target.files)} className="text-sm" />
+                        {previews.length > 0 && (
+                            <div className="flex flex-wrap gap-3">
+                                {previews.map((src, i) => (
+                                    <div key={i} className="border-border h-20 w-20 overflow-hidden rounded-lg border">
+                                        <img src={src} alt={`New image ${i + 1}`} className="h-full w-full object-contain" />
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 </div>
 

@@ -164,7 +164,7 @@ export default function Checkout({ cart, shipping_methods, payment_methods, user
                             {cart.items.map((item) => (
                                 <div key={item.id} className="flex items-center gap-3">
                                     <div className="bg-muted relative h-14 w-14 shrink-0 overflow-hidden rounded-lg">
-                                        {item.image && <img src={item.image} alt="" className="h-full w-full object-cover" />}
+                                        {item.image && <img src={item.image} alt="" className="h-full w-full object-contain p-0.5" />}
                                         <span className="bg-foreground text-background absolute -top-1.5 -right-1.5 flex h-5 w-5 items-center justify-center rounded-full text-[10px]">{item.quantity}</span>
                                     </div>
                                     <div className="flex-1">
