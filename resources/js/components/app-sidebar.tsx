@@ -1,41 +1,61 @@
-import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
-import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { type NavItem } from '@/types';
-import { Link } from '@inertiajs/react';
-import { BookOpen, Folder, LayoutGrid } from 'lucide-react';
+import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
+import { type NavItem, type SharedData } from '@/types';
+import { Link, usePage } from '@inertiajs/react';
+import {
+    FolderTree,
+    LayoutGrid,
+    Layers,
+    MessageSquareText,
+    Newspaper,
+    Package,
+    Settings,
+    ShoppingCart,
+    Store,
+    Tag,
+    Truck,
+    Users,
+    UsersRound,
+    HelpCircle,
+} from 'lucide-react';
 import AppLogo from './app-logo';
 
-const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        url: '/dashboard',
-        icon: LayoutGrid,
-    },
+const catalogNav: NavItem[] = [
+    { title: 'Products', url: '/admin/products', icon: Package },
+    { title: 'Collections', url: '/admin/collections', icon: Layers },
+    { title: 'Categories', url: '/admin/categories', icon: FolderTree },
 ];
 
-const footerNavItems: NavItem[] = [
-    {
-        title: 'Repository',
-        url: 'https://github.com/laravel/react-starter-kit',
-        icon: Folder,
-    },
-    {
-        title: 'Documentation',
-        url: 'https://laravel.com/docs/starter-kits',
-        icon: BookOpen,
-    },
+const salesNav: NavItem[] = [
+    { title: 'Orders', url: '/admin/orders', icon: ShoppingCart },
+    { title: 'Customers', url: '/admin/customers', icon: Users },
+    { title: 'Reviews', url: '/admin/reviews', icon: MessageSquareText },
+];
+
+const contentNav: NavItem[] = [
+    { title: 'Journal', url: '/admin/blog', icon: Newspaper },
+    { title: 'FAQs', url: '/admin/faqs', icon: HelpCircle },
+];
+
+const superAdminNav: NavItem[] = [
+    { title: 'Discounts', url: '/admin/discounts', icon: Tag },
+    { title: 'Shipping', url: '/admin/shipping', icon: Truck },
+    { title: 'Staff', url: '/admin/staff', icon: UsersRound },
+    { title: 'Settings', url: '/admin/settings', icon: Settings },
 ];
 
 export function AppSidebar() {
+    const { auth } = usePage<SharedData>().props;
+    const isSuperAdmin = auth.user?.role === 'super_admin';
+
     return (
         <Sidebar collapsible="icon" variant="inset">
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <Link href="/dashboard" prefetch>
+                            <Link href="/admin" prefetch>
                                 <AppLogo />
                             </Link>
                         </SidebarMenuButton>
@@ -44,11 +64,38 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent>
-                <NavMain items={mainNavItems} />
+                <NavMain items={[{ title: 'Dashboard', url: '/admin', icon: LayoutGrid }]} />
+                <SidebarGroup>
+                    <SidebarGroupLabel>Catalog</SidebarGroupLabel>
+                    <NavMain items={catalogNav} />
+                </SidebarGroup>
+                <SidebarGroup>
+                    <SidebarGroupLabel>Sales</SidebarGroupLabel>
+                    <NavMain items={salesNav} />
+                </SidebarGroup>
+                <SidebarGroup>
+                    <SidebarGroupLabel>Content</SidebarGroupLabel>
+                    <NavMain items={contentNav} />
+                </SidebarGroup>
+                {isSuperAdmin && (
+                    <SidebarGroup>
+                        <SidebarGroupLabel>Administration</SidebarGroupLabel>
+                        <NavMain items={superAdminNav} />
+                    </SidebarGroup>
+                )}
             </SidebarContent>
 
             <SidebarFooter>
-                <NavFooter items={footerNavItems} className="mt-auto" />
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton asChild>
+                            <Link href="/" prefetch>
+                                <Store />
+                                <span>View storefront</span>
+                            </Link>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
                 <NavUser />
             </SidebarFooter>
         </Sidebar>
