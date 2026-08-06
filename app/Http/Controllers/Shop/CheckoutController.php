@@ -51,7 +51,9 @@ class CheckoutController extends Controller
                 'price_formatted' => $this->currency->format($m->priceFor($subtotal)),
             ])->all(),
             'payment_methods' => $this->enabledPaymentMethods(),
-            'addresses' => $request->user()?->addresses()->get() ?? [],
+            'address' => $request->user()?->addresses()->where('is_default_shipping', true)->first()?->only([
+                'first_name', 'last_name', 'company', 'line1', 'line2', 'city', 'county', 'postcode', 'country', 'phone',
+            ]),
             'user' => $request->user()?->only(['name', 'email', 'phone']),
         ]);
     }

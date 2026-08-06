@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Account\AccountController;
 use App\Http\Controllers\Account\OrderController as AccountOrderController;
 use App\Http\Controllers\Account\WishlistController;
 use App\Http\Controllers\Payment\StripeController;
@@ -57,6 +58,12 @@ Route::post('/stripe/webhook', [WebhookController::class, 'handle'])->name('webh
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth'])->prefix('account')->name('account.')->group(function () {
+    Route::get('/', [AccountController::class, 'overview'])->name('overview');
+    Route::get('profile', [AccountController::class, 'profile'])->name('profile');
+    Route::patch('profile', [AccountController::class, 'updateProfile'])->name('profile.update');
+    Route::get('delivery', [AccountController::class, 'delivery'])->name('delivery');
+    Route::put('delivery', [AccountController::class, 'updateDelivery'])->name('delivery.update');
+
     Route::get('orders', [AccountOrderController::class, 'index'])->name('orders');
     Route::get('orders/{order}', [AccountOrderController::class, 'show'])->name('orders.show');
     Route::get('wishlist', [WishlistController::class, 'index'])->name('wishlist');
@@ -65,7 +72,7 @@ Route::middleware(['auth'])->prefix('account')->name('account.')->group(function
 
 Route::middleware(['auth'])->group(function () {
     Route::get('dashboard', function () {
-        return redirect(auth()->user()->isStaff() ? '/admin' : '/account/orders');
+        return redirect(auth()->user()->isStaff() ? '/admin' : '/account');
     })->name('dashboard');
 });
 

@@ -24,10 +24,24 @@ interface CartLine {
     line_total_formatted: string;
 }
 
+interface DeliveryAddress {
+    first_name?: string;
+    last_name?: string;
+    company?: string;
+    line1?: string;
+    line2?: string;
+    city?: string;
+    county?: string;
+    postcode?: string;
+    country?: string;
+    phone?: string;
+}
+
 interface CheckoutProps {
     cart: { items: CartLine[]; subtotal_formatted: string; count: number };
     shipping_methods: ShippingMethod[];
     payment_methods: PaymentMethod[];
+    address: DeliveryAddress | null;
     user: { name?: string; email?: string; phone?: string } | null;
 }
 
@@ -48,15 +62,26 @@ function csrf(): string {
 
 const input = 'border-border focus:ring-primary h-11 w-full rounded-xl border px-4 text-sm outline-none focus:ring-2';
 
-export default function Checkout({ cart, shipping_methods, payment_methods, user }: CheckoutProps) {
+export default function Checkout({ cart, shipping_methods, payment_methods, address, user }: CheckoutProps) {
     const { data, setData, post, processing, errors } = useForm({
         email: user?.email ?? '',
-        phone: user?.phone ?? '',
+        phone: user?.phone ?? address?.phone ?? '',
         shipping_method_id: shipping_methods[0]?.id ?? 0,
         payment_method: payment_methods[0]?.value ?? 'cod',
         coupon_code: '',
         customer_note: '',
-        shipping: { first_name: '', last_name: '', company: '', line1: '', line2: '', city: '', county: '', postcode: '', country: 'GB', phone: '' },
+        shipping: {
+            first_name: address?.first_name ?? '',
+            last_name: address?.last_name ?? '',
+            company: address?.company ?? '',
+            line1: address?.line1 ?? '',
+            line2: address?.line2 ?? '',
+            city: address?.city ?? '',
+            county: address?.county ?? '',
+            postcode: address?.postcode ?? '',
+            country: address?.country ?? 'GB',
+            phone: address?.phone ?? '',
+        },
     });
     const [quote, setQuote] = useState<Quote | null>(null);
 

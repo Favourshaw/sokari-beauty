@@ -8,6 +8,7 @@ import { useState } from 'react';
 const navLinks = [
     { label: 'Home', href: '/' },
     { label: 'Shop', href: '/shop' },
+    { label: 'Journal', href: '/blog' },
     { label: 'About', href: '/about' },
     { label: 'Contact', href: '/contact' },
 ];
@@ -15,7 +16,7 @@ const navLinks = [
 export function StoreHeader() {
     const { auth, cart } = usePage<SharedData>().props;
     const [mobileOpen, setMobileOpen] = useState(false);
-    const accountHref = auth.user ? (auth.user.role === 'customer' ? '/account/orders' : '/admin') : '/login';
+    const accountHref = auth.user ? (auth.user.role === 'customer' ? '/account' : '/admin') : '/login';
 
     return (
         <header className="border-border bg-background/90 sticky top-0 z-50 border-b backdrop-blur">
