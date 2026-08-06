@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\AiController;
 use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CollectionController;
@@ -34,6 +35,7 @@ Route::middleware(['auth', 'staff'])
 
         Route::get('products/import/template', [ProductController::class, 'importTemplate'])->name('products.importTemplate');
         Route::post('products/import', [ProductController::class, 'import'])->name('products.import');
+        Route::post('products/ai/write', [AiController::class, 'write'])->middleware('throttle:20,1')->name('products.ai');
         Route::resource('products', ProductController::class)->except('show');
         Route::resource('categories', CategoryController::class)->only(['index', 'store', 'update', 'destroy']);
         Route::resource('collections', CollectionController::class)->only(['index', 'store', 'update', 'destroy']);
@@ -49,7 +51,7 @@ Route::middleware(['auth', 'staff'])
         Route::get('customers/{user}', [CustomerController::class, 'show'])->name('customers.show');
 
         Route::resource('reviews', ReviewController::class)->only(['index', 'update', 'destroy']);
-        Route::resource('blog', BlogController::class)->only(['index', 'store', 'update', 'destroy']);
+        Route::resource('blog', BlogController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
         Route::resource('faqs', FaqController::class)->only(['index', 'store', 'update', 'destroy']);
 
         // Super-admin only.

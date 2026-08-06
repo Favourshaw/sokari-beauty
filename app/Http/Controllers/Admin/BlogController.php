@@ -16,31 +16,51 @@ class BlogController extends Controller
 {
     public function index(): Response
     {
-        return Inertia::render('admin/blog', [
+        return Inertia::render('admin/blog/index', [
             'posts' => BlogPost::latest()->get()->map(fn (BlogPost $p) => [
                 'id' => $p->id,
+                'slug' => $p->slug,
                 'title' => $p->title,
-                'excerpt' => $p->excerpt,
-                'body' => $p->body,
-                'image' => $p->image,
                 'tag' => $p->tag,
                 'status' => $p->status,
+                'image' => $p->image,
             ]),
         ]);
+    }
+
+    public function create(): Response
+    {
+        return Inertia::render('admin/blog/form');
     }
 
     public function store(Request $request): RedirectResponse
     {
         BlogPost::create($this->payload($request));
 
-        return back()->with('success', 'Post created.');
+        return redirect()->route('admin.blog.index')->with('success', 'Post created.');
+    }
+
+    public function edit(BlogPost $blog): Response
+    {
+        return Inertia::render('admin/blog/form', [
+            'post' => [
+                'id' => $blog->id,
+                'slug' => $blog->slug,
+                'title' => $blog->title,
+                'excerpt' => $blog->excerpt,
+                'body' => $blog->body,
+                'image' => $blog->image,
+                'tag' => $blog->tag,
+                'status' => $blog->status,
+            ],
+        ]);
     }
 
     public function update(Request $request, BlogPost $blog): RedirectResponse
     {
-        $blog->update($this->payload($request));
+        $blog->update($this->payload($request, $blog));
 
-        return back()->with('success', 'Post updated.');
+        return redirect()->route('admin.blog.index')->with('success', 'Post updated.');
     }
 
     public function destroy(BlogPost $blog): RedirectResponse
@@ -53,20 +73,32 @@ class BlogController extends Controller
     /**
      * @return array<string, mixed>
      */
-    private function payload(Request $request): array
+    private function payload(Request $request, ?BlogPost $existing = null): array
     {
         $data = $request->validate([
             'title' => ['required', 'string', 'max:180'],
             'excerpt' => ['nullable', 'string', 'max:255'],
             'body' => ['nullable', 'string'],
-            'image' => ['nullable', 'string', 'max:255'],
             'tag' => ['nullable', 'string', 'max:60'],
             'status' => ['required', Rule::in(['draft', 'published'])],
+            'image' => ['nullable', 'image', 'max:4096'],
         ]);
 
+        $image = $existing?->image;
+        if ($request->hasFile('image')) {
+            $image = '/storage/'.$request->file('image')->store('blog', 'public');
+        }
+
         return [
-            ...$data,
-            'published_at' => $data['status'] === 'published' ? now() : null,
+            'title' => $data['title'],
+            'excerpt' => $data['excerpt'] ?? null,
+            'body' => $data['body'] ?? null,
+            'tag' => $data['tag'] ?? null,
+            'status' => $data['status'],
+            'image' => $image,
+            'published_at' => $data['status'] === 'published'
+                ? ($existing?->published_at ?? now())
+                : null,
         ];
     }
 }
