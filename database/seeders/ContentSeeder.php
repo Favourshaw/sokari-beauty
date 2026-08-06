@@ -45,10 +45,10 @@ class ContentSeeder extends Seeder
                 'title' => $post['title'],
                 'slug' => Str::slug($post['title']),
                 'excerpt' => 'A short read on building an effective, honest skincare routine with Sokari.',
-                'body' => '<p>At Sokari Beauty we believe skincare should be effective and honest. '
-                    .'In this piece we explore how a focused routine — built on proven, high-concentration '
-                    .'ingredients — delivers better results than a cabinet full of products.</p>'
-                    .'<p>Repair, renew, calm, hydrate, protect. Five ingredients, nothing more.</p>',
+                'body' => "At Sokari Beauty we believe skincare should be effective and honest. "
+                    ."In this piece we explore how a focused routine — built on proven, high-concentration "
+                    ."ingredients — delivers better results than a cabinet full of products.\n\n"
+                    ."Repair, renew, calm, hydrate, protect. Five ingredients, nothing more.",
                 'image' => $post['image'],
                 'tag' => $post['tag'],
                 'published_at' => now()->subDays(($i + 1) * 6),

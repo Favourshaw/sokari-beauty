@@ -2,6 +2,7 @@ import { ProductCard } from '@/components/store/product-card';
 import { RatingStars } from '@/components/store/rating-stars';
 import { SectionHeader } from '@/components/store/section-header';
 import StoreLayout from '@/layouts/store-layout';
+import { toParagraphs } from '@/lib/paragraphs';
 import { cn } from '@/lib/utils';
 import { type SharedData } from '@/types';
 import { type ProductCard as ProductCardType } from '@/types/store';
@@ -183,7 +184,11 @@ export default function Product({ product, related }: ProductProps) {
                         {product.description && (
                             <div className="border-border mt-10 border-t pt-8">
                                 <h2 className="text-sm font-semibold tracking-wide uppercase">Details</h2>
-                                <div className="prose prose-sm text-muted-foreground mt-3 max-w-none" dangerouslySetInnerHTML={{ __html: product.description }} />
+                                <div className="prose prose-sm text-muted-foreground mt-3 max-w-none">
+                                    {toParagraphs(product.description).map((para, i) => (
+                                        <p key={i}>{para}</p>
+                                    ))}
+                                </div>
                             </div>
                         )}
                     </div>

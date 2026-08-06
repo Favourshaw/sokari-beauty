@@ -1,4 +1,5 @@
 import StoreLayout from '@/layouts/store-layout';
+import { toParagraphs } from '@/lib/paragraphs';
 import { Head, Link } from '@inertiajs/react';
 import { ArrowLeft } from 'lucide-react';
 
@@ -29,7 +30,13 @@ export default function BlogPost({ post }: { post: Post }) {
                             <img src={post.image} alt={post.title} className="h-full w-full object-cover" />
                         </div>
                     )}
-                    {post.body && <div className="prose prose-neutral mt-8 max-w-none" dangerouslySetInnerHTML={{ __html: post.body }} />}
+                    {post.body && (
+                        <div className="prose prose-neutral mt-8 max-w-none">
+                            {toParagraphs(post.body).map((para, i) => (
+                                <p key={i}>{para}</p>
+                            ))}
+                        </div>
+                    )}
                 </div>
             </article>
         </StoreLayout>
