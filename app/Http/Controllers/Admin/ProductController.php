@@ -170,6 +170,7 @@ class ProductController extends Controller
             'categories' => Category::orderBy('name')->get(['id', 'name']),
             'collections' => Collection::orderBy('title')->get(['id', 'title']),
             'statuses' => array_map(fn (ProductStatus $s) => $s->value, ProductStatus::cases()),
+            'ai_enabled' => app(\App\Services\AiCopywriterService::class)->isConfigured(),
         ];
     }
 

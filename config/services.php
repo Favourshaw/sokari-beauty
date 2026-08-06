@@ -41,4 +41,15 @@ return [
         'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
     ],
 
+    /*
+     | AI copywriter — any OpenAI-compatible Chat Completions endpoint.
+     | Default is Groq's free tier; swap the 3 vars for OpenRouter, Google
+     | Gemini (its OpenAI-compat endpoint), a local Ollama, etc.
+     */
+    'ai' => [
+        'base_url' => env('AI_BASE_URL', 'https://api.groq.com/openai/v1'),
+        'key' => env('AI_API_KEY'),
+        'model' => env('AI_MODEL', 'llama-3.3-70b-versatile'),
+    ],
+
 ];

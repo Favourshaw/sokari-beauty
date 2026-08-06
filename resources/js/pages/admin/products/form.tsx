@@ -1,3 +1,4 @@
+import { AiWriter } from '@/components/admin/ai-writer';
 import AppLayout from '@/layouts/app-layout';
 import { cn } from '@/lib/utils';
 import { type BreadcrumbItem } from '@/types';
@@ -34,12 +35,13 @@ interface Props {
     categories: { id: number; name: string }[];
     collections: { id: number; title: string }[];
     statuses: string[];
+    ai_enabled: boolean;
 }
 
 const input = 'border-border h-10 w-full rounded-lg border px-3 text-sm outline-none focus:ring-2 focus:ring-primary';
 const label = 'text-sm font-medium';
 
-export default function ProductForm({ product, categories, collections, statuses }: Props) {
+export default function ProductForm({ product, categories, collections, statuses, ai_enabled }: Props) {
     const isEdit = !!product;
     const [deleteImages, setDeleteImages] = useState<number[]>([]);
     const [previews, setPreviews] = useState<string[]>([]);
@@ -103,12 +105,39 @@ export default function ProductForm({ product, categories, collections, statuses
                             {form.errors.name && <p className="text-destructive mt-1 text-xs">{form.errors.name}</p>}
                         </div>
                         <div>
-                            <label className={label}>Short description</label>
+                            <div className="flex items-center justify-between">
+                                <label className={label}>Short description</label>
+                                <AiWriter
+                                    field="short_description"
+                                    enabled={ai_enabled}
+                                    getContext={() => ({
+                                        name: form.data.name,
+                                        brand: form.data.brand,
+                                        category: categories.find((c) => c.id === form.data.category_id)?.name,
+                                        current: form.data.short_description,
+                                    })}
+                                    onResult={(text) => form.setData('short_description', text)}
+                                />
+                            </div>
                             <input className={input} value={form.data.short_description} onChange={(e) => form.setData('short_description', e.target.value)} />
                         </div>
                         <div>
-                            <label className={label}>Description</label>
-                            <textarea className={cn(input, 'h-32 py-2')} value={form.data.description} onChange={(e) => form.setData('description', e.target.value)} />
+                            <div className="flex items-center justify-between">
+                                <label className={label}>Description</label>
+                                <AiWriter
+                                    field="description"
+                                    enabled={ai_enabled}
+                                    getContext={() => ({
+                                        name: form.data.name,
+                                        brand: form.data.brand,
+                                        category: categories.find((c) => c.id === form.data.category_id)?.name,
+                                        short_description: form.data.short_description,
+                                        current: form.data.description,
+                                    })}
+                                    onResult={(text) => form.setData('description', text)}
+                                />
+                            </div>
+                            <textarea className={cn(input, 'h-40 py-2 leading-relaxed')} value={form.data.description} onChange={(e) => form.setData('description', e.target.value)} placeholder="Plain text — new lines become paragraphs." />
                         </div>
                     </div>
 
