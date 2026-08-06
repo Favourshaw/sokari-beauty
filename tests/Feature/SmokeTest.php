@@ -25,8 +25,11 @@ it('renders storefront pages', function (string $url) {
 it('renders customer account pages', function (string $url) {
     actingAs(User::factory()->create())->get($url)->assertOk();
 })->with([
+    '/account',
     '/account/orders',
     '/account/wishlist',
+    '/account/profile',
+    '/account/delivery',
 ]);
 
 it('renders admin pages for a super admin', function (string $url) {
@@ -42,6 +45,7 @@ it('renders admin pages for a super admin', function (string $url) {
     '/admin/customers',
     '/admin/reviews',
     '/admin/blog',
+    '/admin/blog/create',
     '/admin/faqs',
     '/admin/discounts',
     '/admin/shipping',
